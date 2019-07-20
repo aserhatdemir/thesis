@@ -334,6 +334,23 @@ App = {
         });
     },
 
+    uploadFileHandler: function () {
+
+        const reader = new FileReader();
+        const file = document.getElementById("fileToUpload");
+
+        if (file.files.length) {
+            reader.onload = (e) => {
+                this.uploadRawContent(e.target.result);
+            }
+        }
+        reader.readAsBinaryString(file.files[0]);
+    },
+
+    uploadRawContent: function (txt) {
+        console.log(txt);
+    },
+
 
 };
 

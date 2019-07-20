@@ -28,29 +28,6 @@
 <script src="https://unpkg.com/@erebos/swarm-browser/dist/erebos.production.js"></script>
 <script src="node_modules/openpgp/dist/openpgp.js"></script>
 
-<script>
-    function uploadTest() {
-        const client = new Erebos.SwarmClient({
-            http: 'https://swarm-gateways.net',
-        })
-        var file = document.getElementById("fileToUpload")
-
-        if (file.files.length) {
-            var reader = new FileReader();
-
-            reader.onload = function (e) {
-                client.bzz
-                    .upload(e.target.result, {contentType: 'text/plain'})
-                    .then(hash => console.log(hash))
-            }
-        }
-        ;
-
-        reader.readAsBinaryString(file.files[0]);
-    }
-
-</script>
-
 <div class="container">
     <div class="jumbotron text-center">
         <h1>ChainList</h1>
@@ -73,10 +50,7 @@
                     <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellContent">Sell
                         an article
                     </button>
-                    <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#uploadTest"
-                            onclick="uploadTest()">upload swarm
-                    </button>
-                    <input id="fileToUpload" type="file" onchange="uploadTest()"/>
+                    <input id="fileToUpload" type="file" onchange="App.uploadFileHandler()"/>
 
                 </div>
             </div>
