@@ -3,6 +3,24 @@ const swarmClient = new Erebos.SwarmClient({
     // http: 'http://localhost:8500',
 });
 
+async function downloadFromHash(hash) {
+    return await ((await swarmClient.bzz.download(hash)).text());
+}
+
+
+function downloadTextAsFile(filename, text) {
+    var element = document.createElement('a');
+    element.setAttribute('href', 'data:text/plain;charset=US-ASCII,' + encodeURIComponent(text));
+    element.setAttribute('download', filename);
+
+    element.style.display = 'none';
+    document.body.appendChild(element);
+
+    element.click();
+
+    document.body.removeChild(element);
+}
+
 function getPublicKey(param) {
     let optionsPatient = {
         userIds: [{username: param.name, email: param.email}],
@@ -27,6 +45,8 @@ App = {
     web3Provider: null,
     contracts: {},
     account: 0x0,
+    buyerPrivateKey: null,
+    rawContent: null,
 
     init: function () {
         return App.initWeb3();
@@ -140,13 +160,11 @@ App = {
 
             if (article[0] != App.account && state == "Created") {
                 articleTemplate.find('.btn-buy').show();
-                articleTemplate.find('#articlePublicKey').show();
             } else {
                 articleTemplate.find('.btn-buy').hide();
-                articleTemplate.find('#articlePublicKey').hide();
             }
 
-            if (article[0] == App.account && state == "Locked" && article[7] == "") {
+            if (article[0] == App.account && state == "Locked") {
                 articleTemplate.find('.btn-uploadContent').show();
             } else {
                 articleTemplate.find('.btn-uploadContent').hide();
@@ -262,8 +280,9 @@ App = {
         const email = $('#buyerEmail').val();
         const passPhrase = $('#buyerPassPhrase').val();
 
-        var _buyerPublicKey = await getPublicKey({name, email, passPhrase});
-        _buyerPublicKey = _buyerPublicKey.publicKey;
+        var buyerKeyPair = await getPublicKey({name, email, passPhrase});
+        const _buyerPublicKey = buyerKeyPair.publicKey;
+        const _buyerPrivateKey = buyerKeyPair.privateKey;
 
         swarmClient.bzz
             .upload(_buyerPublicKey, {contentType: 'text/plain'})
@@ -271,6 +290,11 @@ App = {
                 console.log('upload-----------');
                 console.log(hash);
                 console.log(_buyerPublicKey);
+                console.log('!-----');
+                console.log(_buyerPrivateKey);
+                $('#buyerPrivateKey').val(_buyerPrivateKey);
+                downloadTextAsFile($('#articleName').text() + '.pk', _buyerPrivateKey);
+                console.log('-----!');
                 console.log('upload-----------');
 
 
@@ -286,12 +310,7 @@ App = {
             })
     },
 
-    uploadContent: function () {
-        event.preventDefault();
-
-        // retrieve the content hash address
-        var _contentHashAddress = $('#article_content_hash_address').val();
-
+    uploadContent: function (_contentHashAddress) {
         App.contracts.Purchase.deployed().then(function (instance) {
             return instance.uploadContent(_contentHashAddress, {
                 from: App.account,
@@ -302,8 +321,26 @@ App = {
         });
     },
 
-    downloadContent: function () {
-        event.preventDefault();
+    downloadContent: async function () {
+        const passPhrase = $('#buyerPassPhrase').val();
+        const publicKeyHash = $('#articlePublicKey').text();
+        const contentHash = $('#contentHashAddress').text();
+        const publicKey = await downloadFromHash(publicKeyHash);
+        const encryptedContent = await downloadFromHash(contentHash);
+
+        const privateKeyObj = openpgp.key.readArmored(this.buyerPrivateKey).keys[0];
+        await privateKeyObj.decrypt(passPhrase);
+
+        const optionsProvider = {
+            message: openpgp.message.readArmored(encryptedContent),
+            publicKeys: openpgp.key.readArmored(publicKey).keys,
+            privateKeys: [privateKeyObj]
+        };
+        const decryptedContent = await openpgp.decrypt(optionsProvider).then(decryptedMessage => {
+            return decryptedMessage.data;
+        });
+        downloadTextAsFile($('#articleName').text() + '.txt', decryptedContent);
+        console.log(decryptedContent);
 
         //download content
     },
@@ -334,24 +371,51 @@ App = {
         });
     },
 
-    uploadFileHandler: function () {
-
+    uploadPrivateKeyHandler: function () {
         const reader = new FileReader();
-        const file = document.getElementById("fileToUpload");
+        const file = document.getElementById("buyerPrivateKeyFile");
 
         if (file.files.length) {
             reader.onload = (e) => {
-                this.uploadRawContent(e.target.result);
+                this.buyerPrivateKey = e.target.result;
             }
         }
         reader.readAsBinaryString(file.files[0]);
     },
 
-    uploadRawContent: function (txt) {
-        console.log(txt);
+    uploadRawContent: async function () {
+        const reader = new FileReader();
+        const file = document.getElementById("fileToUpload");
+
+        if (file.files.length) {
+            reader.onload = async e => {
+                const txt = e.target.result;
+                console.log(txt);
+
+                let articlePublicKeyHash = $('#articlePublicKey').text();
+                const articlePublicKey = await ((await swarmClient.bzz.download(articlePublicKeyHash)).text());
+                const encryptedArticle = await this.encryptArticle(articlePublicKey, txt);
+                const encryptedArticleHash = await swarmClient.bzz.upload(encryptedArticle, {contentType: 'text/plain'});
+                this.uploadContent(encryptedArticleHash);
+            }
+        }
+        reader.readAsBinaryString(file.files[0]);
+
+
     },
 
 
+    encryptArticle: function (publicKey, txt) {
+        const options = {
+            data: txt,
+            publicKeys: openpgp.key.readArmored(publicKey).keys,
+
+        };
+
+        return openpgp.encrypt(options).then(cipherText => {
+            return cipherText.data;
+        })
+    }
 };
 
 openpgp.initWorker({path: 'node_modules/openpgp/dist/openpgp.worker.js'})

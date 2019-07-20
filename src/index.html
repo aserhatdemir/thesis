@@ -50,7 +50,7 @@
                     <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellContent">Sell
                         an article
                     </button>
-                    <input id="fileToUpload" type="file" onchange="App.uploadFileHandler()"/>
+                    <input id="fileToUpload" type="file" />
 
                 </div>
             </div>
@@ -68,7 +68,7 @@
     <div class="row-lg-12">
         <div class="panel panel-default panel-article">
             <div class="panel-heading">
-                <h3 class="panel-title"></h3>
+                <h3 class="panel-title" id="articleName"></h3>
             </div>
             <div class="panel-body">
                 <strong>Description</strong>: <span class="article-description"></span><br/>
@@ -77,8 +77,8 @@
                 <strong>Sold by</strong>: <span class="article-seller"></span><br/>
                 <strong>Bought by</strong>: <span class="article-buyer"></span><br/>
                 <strong>State</strong>: <span class="article-state"></span><br/>
-                <strong>Content Hash Address</strong>: <span class="article-content_hash_address"></span><br/>
-                <div><strong>Buyer Public Key</strong>: <span class="article-public_key"></span><br/></div>
+                <strong>Content Hash Address</strong>: <span class="article-content_hash_address" id="contentHashAddress"></span><br/>
+                <strong>Buyer Public Key</strong>: <span class="article-public_key" id="articlePublicKey"></span><br/>
 
             </div>
             <div class="panel-footer">
@@ -91,7 +91,8 @@
                        aria-multiline="false"/>
                 <input type="text" class="form-control" id="buyerPassPhrase" placeholder="Pass Phrase"
                        maxlength="2048" aria-multiline="false"/>
-                <button type="button" class="btn btn-primary btn-success btn-uploadContent" data-toggle="modal"
+                <input type="file" id="buyerPrivateKeyFile" class="btn btn-primary btn-success btn-download" onchange="App.uploadPrivateKeyHandler()"/>
+                <button type="button" class="btn btn-primary btn-success btn-uploadContent" onclick="App.uploadRawContent();"
                         data-target="#uploadContent">Upload Encrypted Content
                 </button>
                 <button type="button" class="btn btn-primary btn-success btn-download"
