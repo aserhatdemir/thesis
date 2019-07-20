@@ -2,209 +2,241 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-  <title>ChainList from ChainSkills</title>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>ChainList from ChainSkills</title>
 
-  <!-- Bootstrap -->
-  <link href="css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap -->
+    <link href="css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-  <!--[if lt IE 9]>
-  <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-  <![endif]-->
+    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
+    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+    <!--[if lt IE 9]>
+    <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
+    <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+    <![endif]-->
 
-  <!-- Application -->
-  <link href="css/app.css" rel="stylesheet">
+    <!-- Application -->
+    <link href="css/app.css" rel="stylesheet">
 
 </head>
 
 <body>
 
-  <script src="https://unpkg.com/@erebos/swarm-browser/dist/erebos.production.js"></script>
-  <script src="node_modules/openpgp/dist/openpgp.js"></script>
+<script src="https://unpkg.com/@erebos/swarm-browser/dist/erebos.production.js"></script>
+<script src="node_modules/openpgp/dist/openpgp.js"></script>
 
-  <script>
-  function uploadTest() {
-    const client = new Erebos.SwarmClient({
-      http: 'https://swarm-gateways.net',
-    })
-    var file = document.getElementById("fileToUpload")
+<script>
+    function uploadTest() {
+        const client = new Erebos.SwarmClient({
+            http: 'https://swarm-gateways.net',
+        })
+        var file = document.getElementById("fileToUpload")
 
-    if(file.files.length)
-    {
-      var reader = new FileReader();
+        if (file.files.length) {
+            var reader = new FileReader();
 
-      reader.onload = function(e)
-      {
-        client.bzz
-          .upload(e.target.result, { contentType: 'text/plain' })
-          .then(hash => console.log(hash))
-      }
-    };
+            reader.onload = function (e) {
+                client.bzz
+                    .upload(e.target.result, {contentType: 'text/plain'})
+                    .then(hash => console.log(hash))
+            }
+        }
+        ;
 
-    reader.readAsBinaryString(file.files[0]);
-}
+        reader.readAsBinaryString(file.files[0]);
+    }
 
-    </script>
+</script>
 
-  <div class="container">
+<div class="container">
     <div class="jumbotron text-center">
-      <h1>ChainList</h1>
+        <h1>ChainList</h1>
     </div>
 
     <div class="col-md-12" id="article-list">
-      <div class="row">
-        <div class="col-lg-12">
-          <p id="account" class="welcome pull-right"></p>
-          <p id="accountBalance" class="welcome pull-left"></p>
-        </div>
-      </div>
-
-      <div class="row panel panel-default">
-        <div class="panel-heading clearfix">
-          <div class="panel-title">
-            <button class="btn btn-info btn-lg pull-left" data-toggle="collapse" data-target="#events" aria-expanded="false" aria-controls="events">Events</button>
-            <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellContent">Sell an article</button>
-            <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#uploadTest" onclick="uploadTest()">upload swarm</button>
-            <input id="fileToUpload" type="file" onchange="uploadTest()"/>
-
-          </div>
-        </div>
-        <ul id="events" class="collapse list-group"></ul>
-      </div>
-
-      <div id="articlesRow" class="row">
-        <!-- ARTICLES LOAD HERE -->
-      </div>
-    </div>
-  </div>
-
-
-  <div id="articleTemplate" style="display: none;">
-    <div class="row-lg-12">
-      <div class="panel panel-default panel-article">
-        <div class="panel-heading">
-          <h3 class="panel-title"></h3>
-        </div>
-        <div class="panel-body">
-          <strong>Description</strong>: <span class="article-description"></span><br/>
-          <strong>Demo Hash Address</strong>: <span class="article-demo_hash_address"></span><br/>
-          <strong>Price (ETH)</strong>: <span class="article-price"></span><br/>
-          <strong>Sold by</strong>: <span class="article-seller"></span><br/>
-          <strong>Bought by</strong>: <span class="article-buyer"></span><br/>
-          <strong>State</strong>: <span class="article-state"></span><br/>
-          <strong>Content Hash Address</strong>: <span class="article-content_hash_address"></span><br/>
-          <strong>Byer Public Key</strong>: <span class="article-public_key"></span><br/>
-        </div>
-        <div class="panel-footer">
-          <button type="button" class="btn btn-primary btn-success btn-buy" onclick="App.buyContent(); return false;">Buy</button>
-          <textarea type="text" class="form-control vresize" id="articlePublicKey" placeholder="Public Key" maxlength="2048"></textarea>
-          <button type="button" class="btn btn-primary btn-success btn-uploadContent" data-toggle="modal" data-target="#uploadContent">Upload Encrypted Content</button>
-          <button type="button" class="btn btn-primary btn-success btn-download" onclick="App.downloadContent(); return false;">Download Content</button>
-          <button type="button" class="btn btn-primary btn-success btn-confirmReceived" onclick="App.confirmReceived(); return false;">Confirm Received</button>
-          <button type="button" class="btn btn-primary btn-success btn-abort" onclick="App.abort(); return false;">Abort Sale</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Modal form to sell an article -->
-  <div class="modal fade" id="sellContent" role="dialog">
-    <div class="modal-dialog">
-
-      <!-- Modal content-->
-      <div class="modal-content">
-        <div class="modal-header">
-          <button type="button" class="close" data-dismiss="modal">&times;</button>
-          <h4 class="modal-title">Sell your article</h4>
-        </div>
-        <div class="modal-body">
-
-          <div class="row">
-            <div class="col-lg-12">
-              <form>
-                <div class="form-group">
-                  <label for="article_name">Article name</label>
-                  <input type="text" class="form-control" id="article_name" placeholder="Enter the name of your article">
-                </div>
-                <div class="form-group">
-                  <label for="price">Price in ETH</label>
-                  <input type="number" class="form-control" id="article_price" placeholder="1" pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
-                </div>
-                <div class="form-group">
-                  <label for="description">Description</label>
-                  <textarea type="text" class="form-control vresize" id="article_description" placeholder="Describe your article" maxlength="255"></textarea>
-                </div>
-                <div class="form-group">
-                  <label for="hash_address">Demo Hash Address</label>
-                  <textarea type="text" class="form-control vresize" id="article_demo_hash_address" placeholder="Enter Hash Address" maxlength="255"></textarea>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-primary btn-success" data-dismiss="modal" onclick="App.sellContent(); return false;">Submit</button>
-          <button type="button" class="btn" data-dismiss="modal">Close</button>
-        </div>
-      </div>
-
-    </div>
-  </div>
-
-  <!-- Modal form to upload a content -->
-<div class="modal fade" id="uploadContent" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Upload Encrypted Content</h4>
-      </div>
-      <div class="modal-body">
-
         <div class="row">
-          <div class="col-lg-12">
-            <form>
-              <div class="form-group">
-                <label for="article_name">Hash Address</label>
-                <textarea type="text" class="form-control vresize" id="article_content_hash_address" placeholder="Enter Hash Address" maxlength="255"></textarea>
-              </div>
-            </form>
-          </div>
+            <div class="col-lg-12">
+                <p id="account" class="welcome pull-right"></p>
+                <p id="accountBalance" class="welcome pull-left"></p>
+            </div>
         </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary btn-success" data-dismiss="modal" onclick="App.uploadContent(); return false;">Submit</button>
-        <button type="button" class="btn" data-dismiss="modal">Close</button>
-      </div>
-    </div>
 
-  </div>
+        <div class="row panel panel-default">
+            <div class="panel-heading clearfix">
+                <div class="panel-title">
+                    <button class="btn btn-info btn-lg pull-left" data-toggle="collapse" data-target="#events"
+                            aria-expanded="false" aria-controls="events">Events
+                    </button>
+                    <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellContent">Sell
+                        an article
+                    </button>
+                    <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#uploadTest"
+                            onclick="uploadTest()">upload swarm
+                    </button>
+                    <input id="fileToUpload" type="file" onchange="uploadTest()"/>
+
+                </div>
+            </div>
+            <ul id="events" class="collapse list-group"></ul>
+        </div>
+
+        <div id="articlesRow" class="row">
+            <!-- ARTICLES LOAD HERE -->
+        </div>
+    </div>
 </div>
 
-  <div id="footer" class="container">
+
+<div id="articleTemplate" style="display: none;">
+    <div class="row-lg-12">
+        <div class="panel panel-default panel-article">
+            <div class="panel-heading">
+                <h3 class="panel-title"></h3>
+            </div>
+            <div class="panel-body">
+                <strong>Description</strong>: <span class="article-description"></span><br/>
+                <strong>Demo Hash Address</strong>: <span class="article-demo_hash_address"></span><br/>
+                <strong>Price (ETH)</strong>: <span class="article-price"></span><br/>
+                <strong>Sold by</strong>: <span class="article-seller"></span><br/>
+                <strong>Bought by</strong>: <span class="article-buyer"></span><br/>
+                <strong>State</strong>: <span class="article-state"></span><br/>
+                <strong>Content Hash Address</strong>: <span class="article-content_hash_address"></span><br/>
+                <div><strong>Buyer Public Key</strong>: <span class="article-public_key"></span><br/></div>
+
+            </div>
+            <div class="panel-footer">
+                <button type="button" class="btn btn-primary btn-success btn-buy"
+                        onclick="App.buyContent(); return false;">Buy
+                </button>
+                <input type="text" class="form-control" id="buyerName" placeholder="Name"
+                       aria-multiline="false"/>
+                <input type="email" class="form-control" id="buyerEmail" placeholder="Email"
+                       aria-multiline="false"/>
+                <input type="text" class="form-control" id="buyerPassPhrase" placeholder="Pass Phrase"
+                       maxlength="2048" aria-multiline="false"/>
+                <button type="button" class="btn btn-primary btn-success btn-uploadContent" data-toggle="modal"
+                        data-target="#uploadContent">Upload Encrypted Content
+                </button>
+                <button type="button" class="btn btn-primary btn-success btn-download"
+                        onclick="App.downloadContent(); return false;">Download Content
+                </button>
+                <button type="button" class="btn btn-primary btn-success btn-confirmReceived"
+                        onclick="App.confirmReceived(); return false;">Confirm Received
+                </button>
+                <button type="button" class="btn btn-primary btn-success btn-abort"
+                        onclick="App.abort(); return false;">Abort Sale
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal form to sell an article -->
+<div class="modal fade" id="sellContent" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Sell your article</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form>
+                            <div class="form-group">
+                                <label for="article_name">Article name</label>
+                                <input type="text" class="form-control" id="article_name"
+                                       placeholder="Enter the name of your article">
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price in ETH</label>
+                                <input type="number" class="form-control" id="article_price" placeholder="1"
+                                       pattern="[0-9]+([\.,][0-9]+)?" step="0.01">
+                            </div>
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea type="text" class="form-control vresize" id="article_description"
+                                          placeholder="Describe your article" maxlength="255"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="hash_address">Demo Hash Address</label>
+                                <textarea type="text" class="form-control vresize" id="article_demo_hash_address"
+                                          placeholder="Enter Hash Address" maxlength="255"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-success" data-dismiss="modal"
+                        onclick="App.sellContent(); return false;">Submit
+                </button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- Modal form to upload a content -->
+<div class="modal fade" id="uploadContent" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Upload Encrypted Content</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form>
+                            <div class="form-group">
+                                <label for="article_name">Hash Address</label>
+                                <textarea type="text" class="form-control vresize" id="article_content_hash_address"
+                                          placeholder="Enter Hash Address" maxlength="255"></textarea>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-success" data-dismiss="modal"
+                        onclick="App.uploadContent(); return false;">Submit
+                </button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div id="footer" class="container">
     <nav class="navbar navbar-default navbar-fixed-bottom">
-      <div class="navbar-inner navbar-content-center text-center">
-        <p class="text-muted" credit><a href="http://chainskills.com">ChainSkills</a> - &copy; 2017 - <a href="https://twitter.com/sarbogast">Sebastien Arbogast</a> and <a href="https://twitter.com/eloudsa">Said Eloudrhiri</a></p>
-      </div>
+        <div class="navbar-inner navbar-content-center text-center">
+            <p class="text-muted" credit><a href="http://chainskills.com">ChainSkills</a> - &copy; 2017 - <a
+                    href="https://twitter.com/sarbogast">Sebastien Arbogast</a> and <a
+                    href="https://twitter.com/eloudsa">Said Eloudrhiri</a></p>
+        </div>
     </nav>
-  </div>
+</div>
 
 
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="js/bootstrap.min.js"></script>
-  <script src="js/web3.min.js"></script>
-  <script src="js/truffle-contract.js"></script>
-  <script src="js/app.js"></script>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="js/bootstrap.min.js"></script>
+<script src="js/web3.min.js"></script>
+<script src="js/truffle-contract.js"></script>
+<script src="js/app.js"></script>
 </body>
 
 </html>

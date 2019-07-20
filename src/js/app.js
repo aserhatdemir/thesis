@@ -1,3 +1,28 @@
+const swarmClient = new Erebos.SwarmClient({
+    http: 'https://swarm-gateways.net',
+    // http: 'http://localhost:8500',
+});
+
+function getPublicKey(param) {
+    let optionsPatient = {
+        userIds: [{username: param.name, email: param.email}],
+        curve: "ed25519",
+        passphrase: param.passPhrase
+    };
+
+    let keyValues = {
+        privateKey: '',
+        publicKey: ''
+    };
+
+
+    return openpgp.generateKey(optionsPatient).then(function (key) {
+        keyValues.privateKey = key.privateKeyArmored; // '-----BEGIN PGP PRIVATE KEY BLOCK ... '
+        keyValues.publicKey = key.publicKeyArmored;   // '-----BEGIN PGP PUBLIC KEY BLOCK ... '
+        return keyValues;
+    });
+}
+
 App = {
     web3Provider: null,
     contracts: {},
@@ -227,24 +252,26 @@ App = {
         });
     },
 
-    buyContent: function () {
+    buyContent: async function () {
         event.preventDefault();
 
 
         // retrieve the article price
         var _price = 2 * parseFloat($(event.target).data('value'));
+        const name = $('#buyerName').val();
+        const email = $('#buyerEmail').val();
+        const passPhrase = $('#buyerPassPhrase').val();
 
-        var _buyerPublicKey = $('#articlePublicKey').val();
+        var _buyerPublicKey = await getPublicKey({name, email, passPhrase});
+        _buyerPublicKey = _buyerPublicKey.publicKey;
 
-
-        const client = new Erebos.SwarmClient({
-            http: 'https://swarm-gateways.net',
-        })
-        client.bzz
+        swarmClient.bzz
             .upload(_buyerPublicKey, {contentType: 'text/plain'})
             .then(hash => {
+                console.log('upload-----------');
                 console.log(hash);
                 console.log(_buyerPublicKey);
+                console.log('upload-----------');
 
 
                 App.contracts.Purchase.deployed().then(function (instance) {
@@ -314,10 +341,6 @@ openpgp.initWorker({path: 'node_modules/openpgp/dist/openpgp.worker.js'})
 
 async function testme() {
 
-    const client = new Erebos.SwarmClient({
-        http: 'https://swarm-gateways.net',
-    });
-
 
     let msgRequest = {
         "patient_id": "0005",
@@ -372,10 +395,10 @@ async function testme() {
             return encrypted;
         }).then(async encrypted => {
             console.log(encrypted);
-            const encryptedIpfsHash = await client.bzz.upload(encrypted, {contentType: 'text/plain'});
+            const encryptedIpfsHash = await swarmClient.bzz.upload(encrypted, {contentType: 'text/plain'});
             return encryptedIpfsHash;
         }).then(async hash => {
-            const encryptedMessage = await client.bzz.download(hash);
+            const encryptedMessage = await swarmClient.bzz.download(hash);
 
             return encryptedMessage;
         }).then(encryptedMessage => {
@@ -401,6 +424,6 @@ $(function () {
     $(window).load(function () {
         App.init();
 
-        testme();
+        // testme();
     });
 });

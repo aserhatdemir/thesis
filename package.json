@@ -20,6 +20,7 @@
   },
   "dependencies": {
     "@erebos/swarm-browser": "^0.8.1",
+    "connect-cors": "^0.5.6",
     "openpgp": "^3.1.3"
   }
 }
