@@ -158,35 +158,53 @@ App = {
             //   articleTemplate.find('.btn-buy').show();
             // }
 
+            //you can abort the sale
+            if (article[0] == App.account && state == "Created") {
+                articleTemplate.find('.btn-abort').show();
+            } else {
+                articleTemplate.find('.btn-abort').hide();
+            }
+
+            //you can buy the content
             if (article[0] != App.account && state == "Created") {
+                articleTemplate.find('.userguide').text("Fill the fields to Generate OpenPGP keys and then Buy the content");
+                articleTemplate.find('.btn-buyer-pgp').show();
                 articleTemplate.find('.btn-buy').show();
             } else {
+                articleTemplate.find('.btn-buyer-pgp').hide();
                 articleTemplate.find('.btn-buy').hide();
             }
 
+            //you can upload content
             if (article[0] == App.account && state == "Locked") {
+                articleTemplate.find('.userguide').text("Select Content to Encrypt and Upload");
                 articleTemplate.find('.btn-uploadContent').show();
+                articleTemplate.find('.btn-contentFileSelect').show();
             } else {
                 articleTemplate.find('.btn-uploadContent').hide();
+                articleTemplate.find('.btn-contentFileSelect').hide();
             }
 
+            //you can download content
             if (article[1] == App.account && state == "Locked" && article[7] != "") {
+                articleTemplate.find('.userguide').text("Enter passphrase and Select Private Key file to Download the Content");
+                document.getElementById("buyerPassPhrase2").type = "text";
                 articleTemplate.find('.btn-download').show();
+                articleTemplate.find('.btn-priKeyUpload').show();
             } else {
+                document.getElementById("buyerPassPhrase2").type = "hidden";
                 articleTemplate.find('.btn-download').hide();
+                articleTemplate.find('.btn-priKeyUpload').hide();
             }
 
+            //you can confirm received
             if (article[1] == App.account && state == "Locked" && article[7] != "") {
                 articleTemplate.find('.btn-confirmReceived').show();
             } else {
                 articleTemplate.find('.btn-confirmReceived').hide();
             }
 
-            if (article[0] == App.account && state == "Created") {
-                articleTemplate.find('.btn-abort').show();
-            } else {
-                articleTemplate.find('.btn-abort').hide();
-            }
+
 
             // add this article
             $('#articlesRow').append(articleTemplate.html());
@@ -202,9 +220,14 @@ App = {
         var _demoHashAddress = $('#article_demo_hash_address').val();
         var _price = web3.toWei(parseFloat($('#article_price').val() || 0), "ether");
 
-        if ((_article_name.trim() == '') || (_price == 0)) {
+        // if ((_article_name.trim() == '') || (_price == 0)) {
             // nothing to sell
-            return false;
+            // return false;
+        // }
+
+        if ((_article_name.trim() == '')) {
+            //nothing to sell
+        return false;
         }
 
         App.contracts.Purchase.deployed().then(function (instance) {
@@ -287,15 +310,8 @@ App = {
         swarmClient.bzz
             .upload(_buyerPublicKey, {contentType: 'text/plain'})
             .then(hash => {
-                console.log('upload-----------');
-                console.log(hash);
-                console.log(_buyerPublicKey);
-                console.log('!-----');
-                console.log(_buyerPrivateKey);
                 $('#buyerPrivateKey').val(_buyerPrivateKey);
                 downloadTextAsFile($('#articleName').text() + '.pk', _buyerPrivateKey);
-                console.log('-----!');
-                console.log('upload-----------');
 
 
                 App.contracts.Purchase.deployed().then(function (instance) {
@@ -322,7 +338,7 @@ App = {
     },
 
     downloadContent: async function () {
-        const passPhrase = $('#buyerPassPhrase').val();
+        const passPhrase = $('#buyerPassPhrase2').val();
         const publicKeyHash = $('#articlePublicKey').text();
         const contentHash = $('#contentHashAddress').text();
         const publicKey = await downloadFromHash(publicKeyHash);

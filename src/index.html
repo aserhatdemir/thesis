@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>ChainList from ChainSkills</title>
+    <title>Secure Content Share</title>
 
     <!-- Bootstrap -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
@@ -30,7 +30,7 @@
 
 <div class="container">
     <div class="jumbotron text-center">
-        <h1>ChainList</h1>
+        <h1>Secure Content Share Framework</h1>
     </div>
 
     <div class="col-md-12" id="article-list">
@@ -48,10 +48,8 @@
                             aria-expanded="false" aria-controls="events">Events
                     </button>
                     <button class="btn btn-info btn-lg pull-right" data-toggle="modal" data-target="#sellContent">Sell
-                        an article
+                        a Content
                     </button>
-                    <input id="fileToUpload" type="file" />
-
                 </div>
             </div>
             <ul id="events" class="collapse list-group"></ul>
@@ -76,22 +74,25 @@
                 <strong>Price (ETH)</strong>: <span class="article-price"></span><br/>
                 <strong>Sold by</strong>: <span class="article-seller"></span><br/>
                 <strong>Bought by</strong>: <span class="article-buyer"></span><br/>
-                <strong>State</strong>: <span class="article-state"></span><br/>
+                <strong>Contract State</strong>: <span class="article-state"></span><br/>
                 <strong>Content Hash Address</strong>: <span class="article-content_hash_address" id="contentHashAddress"></span><br/>
-                <strong>Buyer Public Key</strong>: <span class="article-public_key" id="articlePublicKey"></span><br/>
+                <strong>Buyer Public Key Hash Address</strong>: <span class="article-public_key" id="articlePublicKey"></span><br/>
 
             </div>
             <div class="panel-footer">
+                <span class="userguide" style="color:darkred"></span><br/>
+
+                <!--                <input id="fileToUpload" type="file" />-->
+                <input type="file" id="fileToUpload" class="btn btn-primary btn-success btn-contentFileSelect"/>
+                <input type="hidden" class="form-control" id="buyerPassPhrase2" placeholder="Passphrase"
+                       maxlength="2048" aria-multiline="false"/>
+                <input type="file" id="buyerPrivateKeyFile" class="btn btn-primary btn-success btn-priKeyUpload" onchange="App.uploadPrivateKeyHandler()">
+
+                <button type="button" class="btn btn-primary btn-success btn-buyer-pgp" data-toggle="modal" data-target="#createopenPGP">Generate OpenPGP Keys
+                </button>
                 <button type="button" class="btn btn-primary btn-success btn-buy"
                         onclick="App.buyContent(); return false;">Buy
                 </button>
-                <input type="text" class="form-control" id="buyerName" placeholder="Name"
-                       aria-multiline="false"/>
-                <input type="email" class="form-control" id="buyerEmail" placeholder="Email"
-                       aria-multiline="false"/>
-                <input type="text" class="form-control" id="buyerPassPhrase" placeholder="Pass Phrase"
-                       maxlength="2048" aria-multiline="false"/>
-                <input type="file" id="buyerPrivateKeyFile" class="btn btn-primary btn-success btn-download" onchange="App.uploadPrivateKeyHandler()"/>
                 <button type="button" class="btn btn-primary btn-success btn-uploadContent" onclick="App.uploadRawContent();"
                         data-target="#uploadContent">Upload Encrypted Content
                 </button>
@@ -109,7 +110,7 @@
     </div>
 </div>
 
-<!-- Modal form to sell an article -->
+<!-- Modal form to sell a content -->
 <div class="modal fade" id="sellContent" role="dialog">
     <div class="modal-dialog">
 
@@ -117,7 +118,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Sell your article</h4>
+                <h4 class="modal-title">Sell your Content</h4>
             </div>
             <div class="modal-body">
 
@@ -125,9 +126,9 @@
                     <div class="col-lg-12">
                         <form>
                             <div class="form-group">
-                                <label for="article_name">Article name</label>
+                                <label for="article_name">Content name</label>
                                 <input type="text" class="form-control" id="article_name"
-                                       placeholder="Enter the name of your article">
+                                       placeholder="Enter the name of your content">
                             </div>
                             <div class="form-group">
                                 <label for="price">Price in ETH</label>
@@ -137,7 +138,7 @@
                             <div class="form-group">
                                 <label for="description">Description</label>
                                 <textarea type="text" class="form-control vresize" id="article_description"
-                                          placeholder="Describe your article" maxlength="255"></textarea>
+                                          placeholder="Describe your content" maxlength="255"></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="hash_address">Demo Hash Address</label>
@@ -151,6 +152,60 @@
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary btn-success" data-dismiss="modal"
                         onclick="App.sellContent(); return false;">Submit
+                </button>
+                <button type="button" class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+<!-- Modal form to create OpenPGP keys -->
+<div class="modal fade" id="createopenPGP" role="dialog">
+    <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Buy Content</h4>
+            </div>
+            <div class="modal-body">
+
+                <div class="row">
+                    <div class="col-lg-12">
+                        <form>
+                            <div class="form-group">
+                                <label>Enter Below Fields for OpenPGP Encryption</label>
+                                <br><br>
+                            </div>
+                            <div class="form-group">
+                                <label for="buyerName">Name</label>
+                                <input type="text" class="form-control" id="buyerName" placeholder="Name"
+                                       aria-multiline="false"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="buyerEmail">e-mail address</label>
+                                <input type="email" class="form-control" id="buyerEmail" placeholder="Email"
+                                       aria-multiline="false"/>
+                            </div>
+                            <div class="form-group">
+                                <label for="buyerPassPhrase">Long passphrase</label>
+                                <input type="text" class="form-control" id="buyerPassPhrase" placeholder="Passphrase"
+                                       maxlength="2048" aria-multiline="false"/>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary btn-success" data-dismiss="modal"
+                        >Submit
+<!--                        onclick="App.buyContent(); return false;">Submit-->
                 </button>
                 <button type="button" class="btn" data-dismiss="modal">Close</button>
             </div>
@@ -197,9 +252,6 @@
 <div id="footer" class="container">
     <nav class="navbar navbar-default navbar-fixed-bottom">
         <div class="navbar-inner navbar-content-center text-center">
-            <p class="text-muted" credit><a href="http://chainskills.com">ChainSkills</a> - &copy; 2017 - <a
-                    href="https://twitter.com/sarbogast">Sebastien Arbogast</a> and <a
-                    href="https://twitter.com/eloudsa">Said Eloudrhiri</a></p>
         </div>
     </nav>
 </div>
