@@ -1,4 +1,5 @@
-const swarmClient = new Erebos.SwarmClient({
+// const swarmClient = new Erebos.SwarmClient({
+const swarmClient = new Erebos.swarm.SwarmClient({
     http: 'https://swarm-gateways.net',
     // http: 'http://localhost:8500',
 });
@@ -72,10 +73,10 @@ App = {
         web3.eth.getCoinbase(function (err, account) {
             if (err === null) {
                 App.account = account;
-                $('#account').text(account);
+                $('#account').text("Account: " + account);
                 web3.eth.getBalance(account, function (err, balance) {
                     if (err === null) {
-                        $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH");
+                        $('#accountBalance').text("Account Balance:" + web3.fromWei(balance, "ether") + " ETH");
                     }
                 })
             }
@@ -90,6 +91,7 @@ App = {
             App.contracts.Purchase.setProvider(App.web3Provider);
             // listen to events
             App.listenToEvents();
+
             // retrieve the article from the contract
             return App.reloadContents();
         });
@@ -185,7 +187,7 @@ App = {
                 articleTemplate.find('.btn-contentFileSelect').hide();
             }
 
-            //you can download content
+            //you can download contentweb3.eth.accounts[0]
             if (article[1] == App.account && state == "Locked" && article[7] != "") {
                 articleTemplate.find('.userguide').text("Enter passphrase and Select Private Key file to Download the Content");
                 document.getElementById("buyerPassPhrase2").type = "text";
@@ -297,7 +299,7 @@ App = {
         event.preventDefault();
 
 
-        // retrieve the article price
+        // retrieve the content price
         var _price = 2 * parseFloat($(event.target).data('value'));
         const name = $('#buyerName').val();
         const email = $('#buyerEmail').val();
